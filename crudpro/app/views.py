@@ -1,7 +1,7 @@
 from django.shortcuts import render,redirect
 from django.http import HttpResponse
 from .models import *
-from django.contrib.auth.hashers import make_password
+from django.contrib.auth.hashers import make_password,check_password
 
 
 def index(request):
@@ -44,3 +44,21 @@ def update_view(request):
         phone = request.POST['phone']
         User.objects.filter(id=uid).update(name=name, email=email, phone=phone)
         return redirect('/table/')
+    
+def login(request):
+    return render(request,'login.html')
+
+def login_view(request):
+    if request.method == 'POST':
+        email = request.POST['email']
+        user_password = request.POST['password']
+        if User.objects.filter(email=email).exists():
+            obj=User.objects.get(email=email)
+            password=obj.password
+            if check_password(user_password,password):
+                return redirect('/table/')
+            else:
+                return HttpResponse('password incorrect')
+        else:
+            return HttpResponse('email does not register')
+        
